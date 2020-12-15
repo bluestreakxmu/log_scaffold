@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+日志级别如下: OFF > FATAL > ERROR > WARN > INFO > DEBUG > TRACE > ALL
+
+Configuration参数：
+status：用于设置log4j2自身内部的信息输出，可以不设置，当设置成trace时，会看到log4j2内部各种详细输出。
+monitorInterval：Log4j能够自动检测修改配置 文件和重新配置本身，设置间隔秒数。
+-->
+<Configuration status="info" monitorInterval="30">
+    <!-- 定义常量 -->
+    <Properties>
+        <!-- 日志文件根目录 -->
+        <Property name="logDir" value="logs"/>
+        <!-- 日志的通用格式 -->
+        <Property name="genericPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        <!-- 日志分卷文件通用文件名形式 -->
+        <Property name="genericFilePattern" value="%d{yyyy-MM-dd}-%i"/>
+    </Properties>
+
+    <!--定义日志输出去向Appender，在Loggers标签被引用才有效-->
+    <Appenders>
+        <!--控制台输出Appender-->
+        <Console name="consoleAppender" target="SYSTEM_OUT">
+            <PatternLayout pattern="${genericPattern}"/>
+        </Console>
+
+        <!--没有日志滚动的FileAppender-->
+        <RandomAccessFile name="file" fileName="${logDir}/not_rolling.log" immediateFlush="false">
+            <PatternLayout pattern="${genericPattern}"/>
+        </RandomAccessFile>
+
+        <!--日志滚动的FileAppender-->
+        <RollingRandomAccessFile name="rollingRandomAccessFileAppender"
+                                 fileName="${logDir}/all-rolling.log"
+                                 filePattern="${logDir}/$${date:yyyy-MM-dd}/all-${genericFilePattern}.log"
+                                 append="true">
+            <PatternLayout pattern="${genericPattern}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+                <SizeBasedTriggeringPolicy size="5KB"/>
+            </Policies>
+            <!-- DefaultRolloverStrategy属性如不设置，则默认为最多同一文件夹下7个文件 -->
+            <DefaultRolloverStrategy max="5"/>
+        </RollingRandomAccessFile>
+    </Appenders>
+
+    <!--具体的日志配置，指定类、包中的日志信息流向哪个Appender，并控制日志级别-->
+    <Loggers>
+        <!--此logger监听name对应的包名下的日志输出，lever表示日志级别-->
+        <!--<Logger name="com.example.logger" level="info" additivity="false">
+            <AppenderRef ref="consoleAppender" />
+            <AppenderRef ref="rollingRandomAccessFileAppender" />
+        </Logger>-->
+        <root level="all">
+            <AppenderRef ref="consoleAppender"/>
+            <AppenderRef ref="file"/>
+            <AppenderRef ref="rollingRandomAccessFileAppender"/>
+        </root>
+    </Loggers>
+</Configuration>
