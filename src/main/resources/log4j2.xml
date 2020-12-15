@@ -24,11 +24,6 @@ monitorInterval：Log4j能够自动检测修改配置 文件和重新配置本�
             <PatternLayout pattern="${genericPattern}"/>
         </Console>
 
-        <!--没有日志滚动的FileAppender-->
-        <RandomAccessFile name="file" fileName="${logDir}/not_rolling.log" immediateFlush="false">
-            <PatternLayout pattern="${genericPattern}"/>
-        </RandomAccessFile>
-
         <!--日志滚动的FileAppender-->
         <RollingRandomAccessFile name="rollingRandomAccessFileAppender"
                                  fileName="${logDir}/all-rolling.log"
@@ -36,11 +31,13 @@ monitorInterval：Log4j能够自动检测修改配置 文件和重新配置本�
                                  append="true">
             <PatternLayout pattern="${genericPattern}"/>
             <Policies>
+                <!--根据当前filePattern配置，日志文件每1天滚动一次-->
                 <TimeBasedTriggeringPolicy interval="1"/>
-                <SizeBasedTriggeringPolicy size="5KB"/>
+                <!--日志文件大于512MB滚动一次-->
+                <SizeBasedTriggeringPolicy size="512MB"/>
             </Policies>
-            <!-- DefaultRolloverStrategy属性如不设置，则默认为最多同一文件夹下7个文件 -->
-            <DefaultRolloverStrategy max="5"/>
+            <!-- 设置同一类型日志文件个数，默认为最多同一文件夹下7个文件 -->
+            <DefaultRolloverStrategy max="20"/>
         </RollingRandomAccessFile>
     </Appenders>
 
@@ -53,7 +50,6 @@ monitorInterval：Log4j能够自动检测修改配置 文件和重新配置本�
         </Logger>-->
         <root level="all">
             <AppenderRef ref="consoleAppender"/>
-            <AppenderRef ref="file"/>
             <AppenderRef ref="rollingRandomAccessFileAppender"/>
         </root>
     </Loggers>
